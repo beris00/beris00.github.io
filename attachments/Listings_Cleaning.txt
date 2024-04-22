@@ -1,0 +1,145 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+#Importing Libraries
+import pandas as pd 
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#Handling the Dataset. 
+
+Inpath= "C:/Users/kelli/Documents/DCU/Y4/Mt-412 Analytics Portfolio/"
+Airbnb_Df=pd.read_excel(Inpath+"Listings Power BI Assignmnet.xlsx"
+                   ,header=0, index_col=0)
+Airbnb_Df
+
+
+# In[2]:
+
+
+#Describe the dataset 
+print(Airbnb_Df.head())
+print(Airbnb_Df.tail())
+print(Airbnb_Df.shape)
+
+
+# In[3]:
+
+
+Airbnb_Df.describe(include="all")
+
+
+# In[4]:
+
+
+#Handling missing / Nan values
+(Airbnb_Df.isna().sum(axis=0)) 
+print(Airbnb_Df.isna().sum(axis=0)/len(Airbnb_Df))
+
+
+# In[5]:
+
+
+#As we will not be using the values within district and the null values were so high we dropped the column. 
+Airbnb_Df.drop("district", axis=1,inplace=True)
+Airbnb_Df
+
+
+# In[6]:
+
+
+Airbnb_Df.describe(include="all")
+
+
+# In[7]:
+
+
+#Checking that the column has been dropped from the dataframe. 
+list(Airbnb_Df.columns)
+
+
+# In[8]:
+
+
+# After checking that the null values were evenly distributed by country we decided to drop the rows with null values for the reviews. 
+Airbnb_Df.dropna(subset=["review_scores_rating","review_scores_accuracy","review_scores_cleanliness","review_scores_checkin", 
+                         "review_scores_communication", "review_scores_location", "review_scores_value"], inplace=True)
+Airbnb_Df
+
+
+# In[9]:
+
+
+#Handling missing / Nan values
+(Airbnb_Df.isna().sum(axis=0)) 
+print(Airbnb_Df.isna().sum(axis=0)/len(Airbnb_Df))
+
+
+# In[10]:
+
+
+# We chose to keep the columns host_response_time, host_response_rate, host_acceptance_rate as we would loose too much valuable data. 
+# We will use filters to drop null values within power bi when specifically looking at these measures. 
+
+
+# In[ ]:
+
+
+Airbnb_Df.describe(include="all")
+
+
+# In[ ]:
+
+
+#Checking for duplicated rows, deleting them while keeping the first instance. 
+#print("There are " + str(Airbnb_Df.duplicated().sum()) + " duplicated Rows")
+
+Airbnb_Df[Airbnb_Df.index.duplicated()]
+#this resulted in no duplicates found. This could be either due to previous cleaning or the high quaility of the original data.
+
+
+# In[11]:
+
+
+# Investigating the price to check for outliers
+
+#Examining through percentiles.
+percentiles = [25, 50, 75, 90, 95]  
+
+percentiles.extend([i/10 for i in range(990, 1000, 1)] + [100])
+
+# Calculate the percentiles of the 'price' column
+price_percentiles = np.percentile(Airbnb_Df['price in €'], percentiles)
+
+# Print the calculated percentiles
+for percentile, value in zip(percentiles, price_percentiles):
+    print(f'{percentile}th Percentile: {value:.2f}')
+
+#While we found that there were a few outliers, we manually investigated them and concluded that they were true outliers and that they accurately reflected the range in price for each city.
+#We also invesigated these outliers by removing them and found that the mean price per city was minimally affected and so decided to keep the outliers to reduce unnecessary  data loss.
+
+
+# In[12]: 
+
+
+#Using One-Hot Encoding on the nominal variable "Amenities" 
+Airbnb_Df = pd.get_dummies(Airbnb_Df, columns=['amenities'], prefix='amenities_provided')
+#While we manually filtered the amenities within Power BI, this is an alternative way to filter out each amenity, which is much quicker than manually filtering.
+
+
+# In[13]:
+
+
+#The data is no cleaned and prepared for visualisations within Power BI.
+#Exporting the data from python as a excel file.
+Airbnb_Df.to_excel(Inpath + 'Listings Power BI Assignmnet_Cleaned.xlsx', index=True)
+
+
+
+
+
+
